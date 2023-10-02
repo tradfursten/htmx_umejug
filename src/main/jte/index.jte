@@ -1,0 +1,20 @@
+@import se.umejug.exchangeday.models.ExchangeDay
+@param java.util.List<ExchangeDay> exchangeDays
+
+@template.layout(title = "Exchange Day!", content = @`
+    <h1>Exchage Day</h1>
+    <form action="/exchange_days" method="post">
+        <input type="text" name="name" id="name" placeholder="Name"/>
+        <input type="text" name="swishNumber" id="swishNumber" placeholder="Swish number"/>
+        <button type="submit">Create exchangeday</button>
+    </form>
+
+    <ul>
+        @for(ExchangeDay exchangeDay : exchangeDays)
+            <li>@template.components.exchangeDayLink(exchangeDay = exchangeDay)</li>
+        @endfor
+    </ul>
+`)
+
+
+
