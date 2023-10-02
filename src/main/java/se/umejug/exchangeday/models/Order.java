@@ -43,4 +43,12 @@ public class Order {
                 .map(OrderRow::getPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    public BigDecimal getSumBySeller(Seller seller) {
+        return orderRows
+                .stream()
+                .filter(row -> row.getSeller().getId().equals(seller.getId()))
+                .map(OrderRow::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

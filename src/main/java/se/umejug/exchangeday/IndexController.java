@@ -9,18 +9,23 @@ import java.util.Base64;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriUtils;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 
+import jakarta.servlet.http.HttpServletResponse;
 import se.umejug.exchangeday.models.ExchangeDay;
 import se.umejug.exchangeday.models.Order;
 import se.umejug.exchangeday.models.OrderRow;
@@ -86,20 +91,22 @@ public class IndexController {
     }
 
     @GetMapping("/exchange_days/{exchange_id}/orders/{order_id}")
-    public String getOrder(@PathVariable("exchange_id") Long exchangeId, @PathVariable("order_id") Long orderId, Model model) throws IOException, WriterException {
+    public String getOrder(@PathVariable("exchange_id") Long exchangeId,
+                           @PathVariable("order_id") Long orderId,
+                           Model model,
+                           HttpServletResponse response) throws IOException, WriterException {
         var optionalExchangeDay = exchangeDayService.findById(exchangeId);
         if (optionalExchangeDay.isPresent()) {
             var exchangeDay = optionalExchangeDay.get();
             var optionalOrder = exchangeDay.findOrder(orderId);
             if(optionalOrder.isPresent()) {
                 var order = optionalOrder.get();
-                var sum = order.getOrderRows().stream()
-                        .map(OrderRow::getPrice)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                var sum = order.getSum();
                 model.addAttribute("exchangeDay", exchangeDay);
                 model.addAttribute("order", order);
                 model.addAttribute("sum", sum);
-                model.addAttribute("qr", getQRCode(exchangeDay, order));
+                model.addAttribute("qr", getQRCode(exchangeDay, exchangeDay.getSwishNumber(), sum));
+                response.setHeader("HX-Refresh", "true");
                 return "order";
             }
         }
@@ -107,18 +114,89 @@ public class IndexController {
     }
 
     @PostMapping("/exchange_days/{exchange_id}/orders/{order_id}/rows")
-    public String createRow(@PathVariable("exchange_id") Long exchangeId, @PathVariable("order_id") Long orderId, NewOrderRow newOrderRow) {
-        exchangeDayService.createOrderRow(exchangeId, orderId, newOrderRow);
+    public String createRow(@PathVariable("exchange_id") Long exchangeId,
+                                            @PathVariable("order_id") Long orderId,
+                                            NewOrderRow newOrderRow,
+                                            @RequestHeader("HX-Request") boolean hxRequest,
+                                            Model model,
+                                            HttpServletResponse response ) {
+        var row = exchangeDayService.createOrderRow(exchangeId, orderId, newOrderRow);
+        if(hxRequest && row.isPresent()) {
+            model.addAttribute("row", row.get());
+            response.setHeader("HX-Trigger", "update-sum");
+            return "components/orderRow";
+        }
         return "redirect:/exchange_days/" + exchangeId + "/orders/" + orderId;
     }
 
+    @GetMapping("/exchange_days/{exchange_id}/orders/{order_id}/sum")
+    public String sum(@PathVariable("exchange_id") Long exchangeId,
+                      @PathVariable("order_id") Long orderId,
+                      Model model) {
+        var sum = exchangeDayService.findById(exchangeId)
+                .flatMap(exchangeDay -> exchangeDay.findOrder(orderId))
+                .map(Order::getSum)
+                .orElse(BigDecimal.ZERO);
+        model.addAttribute("sum", sum);
+        model.addAttribute("exchangeDayId", exchangeId);
+        model.addAttribute("orderId", orderId);
+        return "components/sum";
+    }
 
-    private String getQRCode(final ExchangeDay exchangeDay, final Order order) throws IOException, WriterException {
-        var sum = order.getSum().setScale(2, BigDecimal.ROUND_HALF_UP);
+    @GetMapping("/exchange_days/{exchange_id}/orders/{order_id}/qr")
+    public String qr(@PathVariable("exchange_id") Long exchangeId,
+                      @PathVariable("order_id") Long orderId,
+                      Model model,
+                     HttpServletResponse response ) throws IOException, WriterException {
+        var optionalExchangeDay = exchangeDayService.findById(exchangeId);
+        if (optionalExchangeDay.isPresent()) {
+            var exchangeDay = optionalExchangeDay.get();
+            var optionalOrder = exchangeDay.findOrder(orderId);
+            if (optionalOrder.isPresent()) {
+                var order = optionalOrder.get();
+                var qr = getQRCode(exchangeDay, exchangeDay.getSwishNumber(), order.getSum());
+                model.addAttribute("qr", qr);
+                model.addAttribute("exchangeDayId", exchangeId);
+                model.addAttribute("orderId", orderId);
+                return "components/qr";
+            }
+        }
+        response.setHeader("HX-Refresh", "true");
+        return "redirect:/exchange_days/" + exchangeId + "/orders/" + orderId;
+    }
+
+    @GetMapping("/exchange_days/{exchange_id}/sellers/{seller_id}")
+    public String getSeller(@PathVariable("exchange_id") Long exchangeId,
+                           @PathVariable("seller_id") Long sellerId,
+                           Model model,
+                           HttpServletResponse response) throws IOException, WriterException {
+        var optionalExchangeDay = exchangeDayService.findById(exchangeId);
+        if (optionalExchangeDay.isPresent()) {
+            var exchangeDay = optionalExchangeDay.get();
+            var optionalSeller = exchangeDay.findSeller(sellerId);
+            if(optionalSeller.isPresent()) {
+                var seller = optionalSeller.get();
+                var sum = exchangeDay.findOrdersBySeller(seller)
+                        .stream()
+                        .map(order -> order.getSumBySeller(seller))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                model.addAttribute("exchangeDay", exchangeDay);
+                model.addAttribute("sum", sum);
+                model.addAttribute("seller", seller);
+                model.addAttribute("qr", getQRCode(exchangeDay, seller.getSwishNumber(), sum));
+                response.setHeader("HX-Refresh", "true");
+                return "seller";
+            }
+        }
+        return "redirect:/exchange_days/"+exchangeId;
+    }
+
+
+    private String getQRCode(final ExchangeDay exchangeDay, final String recipient, final BigDecimal sum) throws IOException, WriterException {
         var url = String.format("https://app.swish.nu/1/p/sw/?sw=%s&amt=%s&cur=SEK&msg=%s&src=qr",
-                exchangeDay.getSwishNumber(),
+                recipient,
                 sum,
-                URLEncoder.encode("Exchange Day: " + exchangeDay.getName(), StandardCharsets.UTF_8));
+                UriUtils.encode("Exchange Day: " + exchangeDay.getName(), StandardCharsets.UTF_8));
         var imageSize = 200;
         var matrix = new MultiFormatWriter().encode(url, BarcodeFormat.QR_CODE,
                 imageSize, imageSize);

@@ -1,5 +1,130 @@
+body {
+    padding-top: 4rem;
+    background-color: rgb(229 231 235);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Style the list */
+ul.breadcrumb {
+  padding: 10px 16px;
+  list-style: none;
+  background-color: #eee;
+}
+
+/* Display list items side by side */
+ul.breadcrumb li {
+  display: inline;
+  font-size: 18px;
+}
+
+/* Add a slash symbol (/) before/behind each list item */
+ul.breadcrumb li+li:before {
+  padding: 8px;
+  color: black;
+  content: "/\00a0";
+}
+
+/* Add a color to all links inside the list */
+ul.breadcrumb li a {
+  color: #0275d8;
+  text-decoration: none;
+}
+
+/* Add a color on mouse-over */
+ul.breadcrumb li a:hover {
+  color: #01447e;
+  text-decoration: underline;
+}
+
+article {
+    background-color: rgb(243 244 246);
+    padding: 2rem;
+    filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06));
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+h1 {
+    font-size: 2.25rem; /* 36px */
+    line-height: 2.5rem; /* 40px */
+}
+
 .numberOfSellers {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+table {
+    width: 100%;
+    margin-top: 1.5rem;
+    color: rgb(107 114 128);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    border-collapse: collapse;
+}
+
+table > thead {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: rgb(55 65 81);
+    text-transform: uppercase;
+    background-color: rgb(229 231 235);
+}
+
+table > tbody > tr,
+table > tfoot > tr {
+   background-color: rgb(255 255 255);
+   border-bottom-width: 1px;
+
+}
+
+th,
+td {
+    padding: 0.5rem 1.5rem;
+}
+
+#qrcode > img {
+    width: 100%;
+}
+
+button {
+    border: none;
+    align-items: flex-start;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: linear-gradient(to right bottom, rgb(74, 222, 128), rgb(37, 99, 235));
+    border-bottom-color: rgb(229, 231, 235);
+    border-radius: 0.5rem;
+    padding: 1rem 2rem;
+    color: rgb(255 255 255);
+    font-weight: 500;
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+}
+
+button:hover {
+    background-image: linear-gradient(to left bottom, rgb(74, 222, 128), rgb(37, 99, 235));
+}
+
+button:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    --tw-ring-color: rgb(125 211 252);
+    box-shadow: var(--tw-ring-inset) 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+form > input {
+    padding: 0.5rem 1.5rem;
 }

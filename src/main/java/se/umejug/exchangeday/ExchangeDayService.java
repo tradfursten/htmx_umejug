@@ -68,7 +68,7 @@ public class ExchangeDayService {
                 });
     }
 
-    public void createOrderRow(final Long exchangeId, final Long orderId, final NewOrderRow newOrderRow) {
+    public Optional<OrderRow> createOrderRow(final Long exchangeId, final Long orderId, final NewOrderRow newOrderRow) {
         var optionalExchangeDay = repository.findById(exchangeId);
         if(optionalExchangeDay.isPresent()) {
             var exchangeDay = optionalExchangeDay.get();
@@ -81,8 +81,10 @@ public class ExchangeDayService {
                 orderRow.setSeller(seller.get());
                 order.get().getOrderRows().add(orderRow);
                 repository.save(exchangeDay);
+                return Optional.of(orderRow);
             }
         }
+        return Optional.empty();
     }
 
 

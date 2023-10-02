@@ -91,4 +91,12 @@ public class ExchangeDay {
                 .map(Order::getSum)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    public List<Order> findOrdersBySeller(final Seller seller) {
+        return orderList.stream()
+                .filter(order -> order.getOrderRows()
+                        .stream()
+                        .anyMatch(orderRow -> orderRow.getSeller().getId().equals(seller.getId())))
+                .toList();
+    }
 }

@@ -1,11 +1,17 @@
+@import se.umejug.exchangeday.Breadcrumb
 @param se.umejug.exchangeday.models.ExchangeDay exchangeDay
 @param se.umejug.exchangeday.models.Order order
 @param java.math.BigDecimal sum
 @param String qr
 
-@template.layout(title = exchangeDay.getName(), content = @`
-    <h1>New order: ${exchangeDay.getName()}</h1>
-    <form action="/exchange_days/${exchangeDay.getId()}/orders/${order.getId()}/rows" method="post">
+@template.layout(title = exchangeDay.getName(),
+    breadcrumb = new Breadcrumb(exchangeDay, order, null),
+    content = @`
+    <form action="/exchange_days/${exchangeDay.getId()}/orders/${order.getId()}/rows"
+          method="post"
+          hx-post="/exchange_days/${exchangeDay.getId()}/orders/${order.getId()}/rows"
+          hx-target="#order-list"
+          hx-swap="beforeend" >
         <input type="number" name="sellerId" id="sellerId" placeholder="Seller id"/>
         <input type="number" name="price" id="price" placeholder="Price"/>
         <button type="submit">Add row</button>
@@ -14,28 +20,24 @@
     <table>
         <thead>
             <tr>
-                <td>Seller</td>
-                <td>Price</td>
+                <th>Seller</th>
+                <th>Price</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="order-list">
         @for(se.umejug.exchangeday.models.OrderRow row : order.getOrderRows())
-            <tr>
-                <td>${row.getSeller().getId()}</td>
-                <td>${row.getPrice()} kr</td>
-            </tr>
+            @template.components.orderRow(row = row)
         @endfor
         </tbody>
         <tfoot>
         <tr>
             <td />
             <td>
-                <strong id="sum">${sum}</strong> kr
+                @template.components.orderSum(exchangeDayId = exchangeDay.getId(), orderId = order.getId(), sum = sum)
             </td>
         </tr>
         </tfoot>
     </table>
-    <div id="qrcode" hx-get="/orders/qr" hx-trigger="update-sum from:body">
-            $unsafe{qr}
-    </div>
+
+    @template.components.orderQr(exchangeDayId = exchangeDay.getId(), orderId = order.getId(), qr = qr)
 `)

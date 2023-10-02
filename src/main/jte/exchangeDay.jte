@@ -1,9 +1,11 @@
+@import se.umejug.exchangeday.Breadcrumb
 @param se.umejug.exchangeday.models.ExchangeDay exchangeDay
 @param boolean displaySellers
 @param boolean displayOrders
 
-@template.layout(title = exchangeDay.getName(), content = @`
-    <h1>Exchange Day: ${exchangeDay.getName()}</h1>
+@template.layout(title = "Exchange Day: " + exchangeDay.getName(),
+    breadcrumb = new Breadcrumb(exchangeDay, null, null),
+    content = @`
     <form action="/exchange_days/${exchangeDay.getId()}/orders" method="post">
         <button type="submit">Create new order</button>
     </form>

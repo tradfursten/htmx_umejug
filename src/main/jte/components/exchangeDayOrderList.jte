@@ -6,7 +6,7 @@
 
 
 <span class="numberOfSellers">
-            <h3>Number of orders: ${exchangeDay.getOrderList().size()} - total: ${exchangeDay.getSum()}</h3>
+            <h3>Number of orders: ${exchangeDay.getOrderList().size()} - total: ${exchangeDay.getSum()} kr</h3>
     @if(displayOrders)
         <a href="/exchange_days/${exchangeDay.getId()}?display_orders=false&display_sellers=${displaySellers}">(hide)</a>
     @else
