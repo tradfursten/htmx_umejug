@@ -210,4 +210,4 @@ public class IndexController {
 
 record NewExchangeDay(String name, String swishNumber) { }
 record NewSeller(String name, String swishNumber) { }
-record NewOrderRow(Long sellerId, BigDecimal price) { }
+record NewOrderRow(Integer sellerId, BigDecimal price) { }

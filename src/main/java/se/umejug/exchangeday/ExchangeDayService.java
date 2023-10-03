@@ -74,7 +74,7 @@ public class ExchangeDayService {
         if(optionalExchangeDay.isPresent()) {
             var exchangeDay = optionalExchangeDay.get();
 
-            var seller = exchangeDay.findSeller(newOrderRow.sellerId());
+            var seller = exchangeDay.findSellerByNumber(newOrderRow.sellerId());
             var order = exchangeDay.findOrder(orderId);
             if(seller.isPresent() && order.isPresent()) {
                 var orderRow = new OrderRow();

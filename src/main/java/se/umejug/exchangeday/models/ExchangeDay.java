@@ -99,4 +99,11 @@ public class ExchangeDay {
                         .anyMatch(orderRow -> orderRow.getSeller().getId().equals(seller.getId())))
                 .toList();
     }
+
+    public Optional<Seller> findSellerByNumber(final Integer sellerNumber) {
+        return sellerList
+                .stream()
+                .filter(it -> Objects.equals(it.getSellerNumber(), sellerNumber))
+                .findFirst();
+    }
 }
