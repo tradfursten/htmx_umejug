@@ -13,7 +13,7 @@
 
     <ul>
         @for(ExchangeDay exchangeDay : exchangeDays)
-            <li>@template.components.exchangeDayLink(exchangeDay = exchangeDay)</li>
+            @template.components.exchangeDayLink(exchangeDay = exchangeDay)
         @endfor
     </ul>
 `)

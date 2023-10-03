@@ -17,6 +17,8 @@ public class Seller {
 
     private String name;
 
+    private Integer sellerNumber;
+
 
     private String swishNumber;
 
@@ -44,4 +46,11 @@ public class Seller {
         this.swishNumber = swishNumber;
     }
 
+    public Integer getSellerNumber() {
+        return sellerNumber;
+    }
+
+    public void setSellerNumber(final Integer sellerNumber) {
+        this.sellerNumber = sellerNumber;
+    }
 }

@@ -140,7 +140,7 @@ public class IndexController {
         model.addAttribute("sum", sum);
         model.addAttribute("exchangeDayId", exchangeId);
         model.addAttribute("orderId", orderId);
-        return "components/sum";
+        return "components/orderSum";
     }
 
     @GetMapping("/exchange_days/{exchange_id}/orders/{order_id}/qr")
@@ -158,7 +158,7 @@ public class IndexController {
                 model.addAttribute("qr", qr);
                 model.addAttribute("exchangeDayId", exchangeId);
                 model.addAttribute("orderId", orderId);
-                return "components/qr";
+                return "components/orderQr";
             }
         }
         response.setHeader("HX-Refresh", "true");

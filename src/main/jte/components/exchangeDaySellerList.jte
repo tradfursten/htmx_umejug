@@ -15,7 +15,7 @@
 <div class="sellers">
     @if(displaySellers)
         @for(Seller seller : exchangeDay.getSellerList())
-            <li><a href="/exchange_days/${exchangeDay.getId()}/sellers/${seller.getId()}">${seller.getId()} - ${seller.getName()}</a></li>
+            <li><a href="/exchange_days/${exchangeDay.getId()}/sellers/${seller.getId()}">${seller.getSellerNumber()} - ${seller.getName()}</a></li>
         @endfor
     @endif
 </div>

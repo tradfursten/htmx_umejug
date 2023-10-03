@@ -53,6 +53,7 @@ public class ExchangeDayService {
         seller.setSwishNumber(newSeller.swishNumber());
         repository.findById(exchangeId)
                 .ifPresent(exchangeDay -> {
+                    seller.setSellerNumber(exchangeDay.getSellerList().size() + 1);
                     exchangeDay.getSellerList().add(seller);
                     repository.save(exchangeDay);
                 });
