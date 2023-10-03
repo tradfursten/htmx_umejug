@@ -117,7 +117,7 @@ public class IndexController {
     public String createRow(@PathVariable("exchange_id") Long exchangeId,
                                             @PathVariable("order_id") Long orderId,
                                             NewOrderRow newOrderRow,
-                                            @RequestHeader("HX-Request") boolean hxRequest,
+                                            @RequestHeader(value = "HX-Request", required = false) boolean hxRequest,
                                             Model model,
                                             HttpServletResponse response ) {
         var row = exchangeDayService.createOrderRow(exchangeId, orderId, newOrderRow);
