@@ -3,7 +3,7 @@
 @param String qr
 
 <div id="qrcode"
-     hx-get="/exchange_days/${exchangeDayId}/orders/${orderId}/qr"
-     hx-trigger="update-sum from:body">
+     hx-swap-oob="true"
+     >
     $unsafe{qr}
 </div>

@@ -119,12 +119,21 @@ public class IndexController {
                                             NewOrderRow newOrderRow,
                                             @RequestHeader(value = "HX-Request", required = false) boolean hxRequest,
                                             Model model,
-                                            HttpServletResponse response ) {
-        var row = exchangeDayService.createOrderRow(exchangeId, orderId, newOrderRow);
-        if(hxRequest && row.isPresent()) {
-            model.addAttribute("row", row.get());
-            response.setHeader("HX-Trigger", "update-sum");
-            return "components/orderRow";
+                                            HttpServletResponse response ) throws IOException, WriterException {
+        var exchangeDay = exchangeDayService.findById(exchangeId);
+        if (exchangeDay.isPresent()) {
+            var order = exchangeDay.get().findOrder(orderId);
+            if (order.isPresent()) {
+                var row = exchangeDayService.createOrderRow(exchangeId, orderId, newOrderRow);
+                if (hxRequest && row.isPresent()) {
+                    model.addAttribute("row", row.get());
+                    model.addAttribute("exchangeDay", exchangeDay.get());
+                    model.addAttribute("order", order.get());
+                    model.addAttribute("qr", getQRCode(exchangeDay.get(), exchangeDay.get().getSwishNumber(), order.get().getSum()));
+                    response.setHeader("HX-Trigger", "update-sum");
+                    return "components/orderRowHtmxResponse";
+                }
+            }
         }
         return "redirect:/exchange_days/" + exchangeId + "/orders/" + orderId;
     }
